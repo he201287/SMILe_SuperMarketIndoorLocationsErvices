@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "495497393931",
+    "firebase_url": "https://smile-9d442.firebaseio.com",
+    "project_id": "smile-9d442",
+    "storage_bucket": "smile-9d442.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:495497393931:android:34a356a88b9c8e6b",
+        "android_client_info": {
+          "package_name": "com.bonhomme.jb.smile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "495497393931-kgi3jd9ufud33ibqicgk7seqcbpu4oa6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bonhomme.jb.smile",
+            "certificate_hash": "06db3368e0936d44a4f8044d8b29772493377127"
+          }
+        },
+        {
+          "client_id": "495497393931-2dg5supvfaqvtvslicihb42914b0a5uf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFqiynTawy5FXEhNQVjPx32mjr7rH6XWw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "495497393931-2dg5supvfaqvtvslicihb42914b0a5uf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
