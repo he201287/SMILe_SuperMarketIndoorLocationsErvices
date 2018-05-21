@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">SMILe</string>
+    <string name="email">email</string>
+    <string name="password">password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="register_user">Register</string>
+    <string name="sign_in_user_descr">You may also choose to sign in with your credentials (email + password)</string>
+    <string name="anonymous_sign_in">Anonymous Sign In</string>
+    <string name="super_market_indoor_location_services">Super Market Indoor Location sErvices</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="convert">Convert to a permanent account</string>
+    <string name="title_activity_main">MainActivity</string>
+
+
 </resources>

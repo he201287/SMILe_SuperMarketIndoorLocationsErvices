@@ -6,28 +6,45 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class anonymousUser extends AppCompatActivity {
 
+    private FirebaseAuth mAuth;
+
+
     private Button mSignOutBtn;
+    private Button mRegister;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.anonymous_user);
 
-        mSignOutBtn = findViewById(R.id.anonymous_user_sign_out);
+        mAuth = FirebaseAuth.getInstance();
 
+        mSignOutBtn = findViewById(R.id.anonymous_user_sign_out);
         mSignOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity.signOut();
+                signOut();
+                // Intent loginScreen = new Intent(anonymousUser.this, LoginActivity.class);
+                // startActivity(loginScreen);
+                finish();
+            }
+        });
 
-                Intent loginScreen = new Intent(anonymousUser.this, MainActivity.class);
-                startActivity(loginScreen);
-                setContentView(R.layout.activity_main);
+        mRegister = findViewById(R.id.anonymous_user_register);
+        mRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent registerAnonymousUser = new Intent(anonymousUser.this, registerAnonymousUser.class);
+                startActivity(registerAnonymousUser);
             }
         });
     }
 
-
+    private void signOut() {
+        mAuth.signOut();
+    }
 }
