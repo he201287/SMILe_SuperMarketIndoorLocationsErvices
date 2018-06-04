@@ -1,3 +1,4 @@
+/*Vous trouverez les liens vers les licenses nécessaires pour l'utilisation du code dans README.md*/
 package com.bonhomme.jb.smile;
 
 import android.content.Intent;
@@ -74,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 //
                 //}
                 // Initialize the IndoorLocationManager
-                // or foreground here foreground() .withScannerInForegroundService(notification)
+                // With foreground() .withScannerInForegroundService(notification)
                 //mIndoorLocationManager.startPositioning();
                 mIndoorLocationManager = new IndoorLocationManagerBuilder(getApplicationContext(), location, mCldCred)
                         .withDefaultScanner()
@@ -95,9 +96,9 @@ public class MainActivity extends AppCompatActivity {
                 });
 
 
-                // Toast.makeText(MainActivity.this, "MOUVEMENT0000000000001111111111111111", Toast.LENGTH_SHORT).show();
+
                 //mIndoorLocationManager.startPositioning();
-                // Toast.makeText(MainActivity.this, "MOUVEMENT00000000000000000000000000222222222222222", Toast.LENGTH_SHORT).show();
+
                 // mIndoorLocationManager.stopPositioning();
             }
             @Override

@@ -1,3 +1,4 @@
+/*Vous trouverez les liens vers les licenses nécessaires pour l'utilisation du code dans README.md*/
 package com.bonhomme.jb.smile;
 
 import android.content.Intent;
@@ -43,6 +44,8 @@ public class anonymousUser extends AppCompatActivity {
             }
         });
     }
+
+    // TODO: Add view for the anonymous user
 
     private void signOut() {
         mAuth.signOut();

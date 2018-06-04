@@ -1,3 +1,4 @@
+/*Vous trouverez les liens vers les licenses nécessaires pour l'utilisation du code dans README.md*/
 package com.bonhomme.jb.smile;
 
 import android.content.Intent;
@@ -59,6 +60,8 @@ public class registerUser extends AppCompatActivity {
                             // successfully Signed in
                             Log.d(TAG, "Create new user: Success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            Toast.makeText(registerUser.this, "User has been registered successfully.",
+                                    Toast.LENGTH_SHORT).show();
                             //TODO update the layout
                             Intent backToLoginScreen = new Intent(registerUser.this, LoginActivity.class);
                             finish();
