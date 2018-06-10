@@ -4,6 +4,7 @@ package com.bonhomme.jb.smile;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -26,9 +27,11 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private Button mSignOutBtn;
+    private Button mProfileBtn;
     private IndoorLocationView mLocationView;
 
-    private Location mLocation;
+    private LocationPosition mLocalPos;
+    private LocationPosition mTestPos;
     private IndoorCloudManager mCldMng;
     private CloudCredentials mCldCred;
 
@@ -54,6 +57,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mProfileBtn = findViewById(R.id.user_profile);
+        mProfileBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToUserProfile = new Intent(MainActivity.this, userProfile.class);
+                startActivity(goToUserProfile);
+            }
+        });
+
         // Authenticate the app to access the Estimote Cloud
         mCldCred = new EstimoteCloudCredentials("smile-0bg", "9e0f13942025ac504966bb6eb77e5a4d");
         mCldMng = new IndoorCloudManagerFactory().create(this, mCldCred);
@@ -69,37 +81,39 @@ public class MainActivity extends AppCompatActivity {
                 //do smthng with the location object
                 mLocationView = findViewById(R.id.indoor_location_view);
                 mLocationView.setLocation(location);
-                mLocation = location;
-                LocationPosition testPos = new LocationPosition(3,1, 2);
-                //if(postition.distanceTo(testPos) < 5 ) {
-//
-                //}
+                //mLocation = location;
+
                 // Initialize the IndoorLocationManager
                 // With foreground() .withScannerInForegroundService(notification)
-                //mIndoorLocationManager.startPositioning();
                 mIndoorLocationManager = new IndoorLocationManagerBuilder(getApplicationContext(), location, mCldCred)
                         .withDefaultScanner()
                         .build();
-                yolo();
+
+                startPositioning();
+
+
                 // Setting location listener to update location on the map
                 mIndoorLocationManager.setOnPositionUpdateListener(new OnPositionUpdateListener() {
                     @Override
-                    public void onPositionUpdate(LocationPosition locationPosition) {
-                        mLocationView.updatePosition(locationPosition);
-                        Toast.makeText(MainActivity.this, "Position" + locationPosition, Toast.LENGTH_SHORT).show();
+                    public void onPositionUpdate(LocationPosition localPosition) {
+
+                        LocationPosition testPos = new LocationPosition(3,1, 0.0);
+                        mLocalPos = localPosition;
+                        mTestPos = testPos;
+                        if(distanceTo() < 1) {
+                            Log.d("YOOOOOOOOOOOOOOOOOOOOOOOOOLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOO ", "VOUS ETES A MOINS DE 3 METRES SUR L AXE DES X DE LA POSITION DE TEST");
+                        }
+                        mLocationView.updatePosition(localPosition);
+                        Log.d("UPDATED POS", "POS : " + localPosition);
                     }
                     @Override
                     public void onPositionOutsideLocation() {
                         mLocationView.hidePosition();
-                        Toast.makeText(MainActivity.this, "A PU MVT", Toast.LENGTH_SHORT).show();
+                        Log.d("UPDATED POS", "Hidden Position");
                     }
                 });
 
 
-
-                //mIndoorLocationManager.startPositioning();
-
-                // mIndoorLocationManager.stopPositioning();
             }
             @Override
             // If it fails to load the location
@@ -114,13 +128,22 @@ public class MainActivity extends AppCompatActivity {
         mAuth.signOut();
     }
 
-    protected void yolo() {
-        mIndoorLocationManager.startPositioning();
+    private double distanceTo() {
+        double mDistanceTo = mTestPos.getX() - mLocalPos.getX();
+        return mDistanceTo;
     }
-//
-    //@Override
-    //protected void onStop() {
-    //    super.onStop();
-    //    mIndoorLocationManager.stopPositioning();
-    //}
+
+    protected void startPositioning() {
+        mIndoorLocationManager.startPositioning();
+        Toast.makeText(MainActivity.this, "You can now move on the map",
+                Toast.LENGTH_SHORT).show();
+        Log.d("POSITIONING", "STARTING");
+    }
+
+    @Override
+    protected void onStop() {
+        mIndoorLocationManager.stopPositioning();
+        super.onStop();
+
+    }
 }

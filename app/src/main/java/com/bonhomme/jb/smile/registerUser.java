@@ -3,6 +3,7 @@ package com.bonhomme.jb.smile;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -32,6 +33,7 @@ public class registerUser extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+
         mEmailField = findViewById(R.id.user_email_field);
         mPswdField = findViewById(R.id.user_pswd_field);
 
@@ -40,9 +42,10 @@ public class registerUser extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 userSignUp();
-                Intent backToLoginScreen = new Intent(registerUser.this, LoginActivity.class);
+                SystemClock.sleep(500);
+                Intent continueToSignUp = new Intent(registerUser.this, registerUserProfile.class);
                 finish();
-                startActivity(backToLoginScreen);
+                startActivity(continueToSignUp);
             }
         });
     }
@@ -60,12 +63,8 @@ public class registerUser extends AppCompatActivity {
                             // successfully Signed in
                             Log.d(TAG, "Create new user: Success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(registerUser.this, "User has been registered successfully.",
+                            Toast.makeText(registerUser.this, "User has been created successfully.",
                                     Toast.LENGTH_SHORT).show();
-                            //TODO update the layout
-                            Intent backToLoginScreen = new Intent(registerUser.this, LoginActivity.class);
-                            finish();
-                            startActivity(backToLoginScreen);
                         } else {
                             // If failure then
                             Log.w(TAG, "Create new user: failure", task.getException());
