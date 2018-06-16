@@ -30,6 +30,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mEmailField;
     private EditText mPswdField;
 
+    //TODO TEXT VIEWS WITH ERROR HANDLING
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

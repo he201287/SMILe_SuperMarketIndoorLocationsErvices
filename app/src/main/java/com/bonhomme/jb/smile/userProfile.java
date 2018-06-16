@@ -8,25 +8,36 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.w3c.dom.Text;
 
 public class userProfile extends AppCompatActivity {
 
     private static final String FIRST_NAME_KEY = "firstName";
     private static final String LAST_NAME_KEY = "lastName";
-    private static final String BIRTH_DATE_KEY = "birthDate";
+    private static final String BIRTH_DAY_KEY = "birthDay";
     private static final String IS_ADMIN_KEY = "isAdmin";
     private static final String USER_EMAIL_KEY = "userEmail";
-    private DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("users").document("5mSUT45IYnHaXuKRJGVk");
-    TextView mUserDataTextView;
+    private String fireBaseUid;
+    TextView mUserFirstNameView;
+    TextView mUserLastNameView;
+    TextView mUserBirthDayView;
+    TextView mUserEmailView;
+    TextView mUserIsAdminView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
-        mUserDataTextView = findViewById(R.id.user_profile_info);
+        mUserFirstNameView = findViewById(R.id.user_firstName);
+        mUserLastNameView = findViewById(R.id.user_lastName);
+        mUserBirthDayView = findViewById(R.id.user_birthday);
+        mUserEmailView = findViewById(R.id.user_email);
+        mUserIsAdminView = findViewById(R.id.user_isAdmin);
     }
 
     protected void onStart(){
@@ -35,17 +46,23 @@ public class userProfile extends AppCompatActivity {
     };
 
     private void getUserProfile() {
+        fireBaseUid  = FirebaseAuth.getInstance().getUid();
+        DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("users").document(fireBaseUid);
         mDocumentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if(documentSnapshot.exists()) {
                     String firstName = documentSnapshot.getString(FIRST_NAME_KEY);
                     String lastName = documentSnapshot.getString(LAST_NAME_KEY);
-                    String birthDate = documentSnapshot.getString(BIRTH_DATE_KEY);
+                    String birthDay = documentSnapshot.getString(BIRTH_DAY_KEY);
                     String userEmail = documentSnapshot.getString(USER_EMAIL_KEY);
                     boolean isAdmin = documentSnapshot.getBoolean(IS_ADMIN_KEY);
 
-                    mUserDataTextView.setText("\"" + firstName + "\n" + lastName + "\n" + birthDate + "\n" + userEmail + "\n" + isAdmin);
+                    mUserFirstNameView.setText("First name: "  + firstName);
+                    mUserLastNameView.setText("Last name: " + lastName);
+                    mUserBirthDayView.setText("Birthday: " + birthDay);
+                    mUserEmailView.setText("Email: " + userEmail);
+                    mUserIsAdminView.setText("Admin state: " + isAdmin);
                     Log.d("SUCCESS", "USER DATA HAS BEEN RETRIEVED");
                 }
             }

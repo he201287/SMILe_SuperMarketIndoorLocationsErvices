@@ -30,7 +30,10 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".registerAnonymousUser" />
         <activity android:name=".registerUserProfile" />
-        <activity android:name=".userProfile"></activity>
+        <activity android:name=".userProfile" />
+        <activity android:name=".shelfActivity" />
+        <activity android:name=".adminUser" />
+        <activity android:name=".shoppingCart"></activity>
     </application>
 
 </manifest>

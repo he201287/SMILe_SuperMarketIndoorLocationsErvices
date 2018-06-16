@@ -4,4 +4,7 @@
     <color name="colorPrimaryDark">#434E52</color>
     <color name="colorAccent">#FF4081</color>
     <color name="locationColor">#EFEFF4</color>
+    <color name="profileTitle">#1F2041</color>
+    <color name="profileText">#222722</color>
+
 </resources>

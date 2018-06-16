@@ -65,10 +65,10 @@ public class registerAnonymousUser extends AppCompatActivity {
                         if(task.isSuccessful()) {
                             Log.d(TAG, "registerAccount:success");
                             FirebaseUser user = task.getResult().getUser();
-                            // update layout, back to the login screen
-                            Intent backToLoginScreen = new Intent(registerAnonymousUser.this, LoginActivity.class);
+                            // update layout, pursue with the user registration
+                            Intent continueToSignUp = new Intent(registerAnonymousUser.this, registerUserProfile.class);
                             finish();
-                            startActivity(backToLoginScreen);
+                            startActivity(continueToSignUp);
                         } else {
                             Log.w(TAG, "registerAccount:failed", task.getException());
                             Toast.makeText(registerAnonymousUser.this, "Authentication failed",

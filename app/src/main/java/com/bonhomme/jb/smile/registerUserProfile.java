@@ -24,7 +24,7 @@ public class registerUserProfile extends AppCompatActivity {
 
     private static final String FIRST_NAME_KEY = "firstName";
     private static final String LAST_NAME_KEY = "lastName";
-    private static final String BIRTH_DATE_KEY = "birthDate";
+    private static final String BIRTH_DAY_KEY = "birthDay";
     private static final String IS_ADMIN_KEY = "isAdmin";
     private static final String DATA_TAG = "Uploading Data to FireBase Cloud Firestore";
     private static final String USER_ID_KEY = "userId";
@@ -32,16 +32,12 @@ public class registerUserProfile extends AppCompatActivity {
     private String fireBaseUid;
     private String fireBaseEmail;
 
-    private DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("users").document();
-
-
     private Button mSignUpBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_user_profile);
-
 
         mSignUpBtn = findViewById(R.id.user_sign_up);
         mSignUpBtn.setOnClickListener(new View.OnClickListener() {
@@ -61,16 +57,18 @@ public class registerUserProfile extends AppCompatActivity {
         EditText firstNameView = findViewById(R.id.user_firstName);
         EditText lastNameView = findViewById(R.id.user_lastName);
         // TODO CHECK FOR THE DATEPICKER AND FOR A CORRECT DATETIME FORMAT NOT A STRING / CHECK IF THE INPUT IS CORRECT
-        EditText bDateView = findViewById(R.id.user_bDate);
+        EditText bDayView = findViewById(R.id.user_bDay);
 
         String firstNameText = firstNameView.getText().toString();
         String lastNameText = lastNameView.getText().toString();
-        String bDateText = bDateView.getText().toString();
+        String bDayText = bDayView.getText().toString();
         boolean isAdmin = false;
         fireBaseUid  = FirebaseAuth.getInstance().getUid();
         fireBaseEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
-        if(firstNameText.isEmpty() || lastNameText.isEmpty() || bDateText.isEmpty()) {
+        DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("users").document(fireBaseUid);
+
+        if(firstNameText.isEmpty() || lastNameText.isEmpty() || bDayText.isEmpty()) {
             return;
         } else {
             Map<String, Object> userData = new HashMap<String, Object>();
@@ -81,7 +79,7 @@ public class registerUserProfile extends AppCompatActivity {
             userData.put(IS_ADMIN_KEY, isAdmin);
             userData.put(FIRST_NAME_KEY, firstNameText);
             userData.put(LAST_NAME_KEY, lastNameText);
-            userData.put(BIRTH_DATE_KEY, bDateText);
+            userData.put(BIRTH_DAY_KEY, bDayText);
 
             SystemClock.sleep(500);
             mDocumentReference.set(userData).addOnSuccessListener(new OnSuccessListener<Void>() {
