@@ -1,14 +1,21 @@
+/*Vous trouverez les liens vers les licenses nécessaires pour l'utilisation du code dans README.md*/
 package com.bonhomme.jb.smile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -28,6 +35,7 @@ public class userProfile extends AppCompatActivity {
     TextView mUserBirthDayView;
     TextView mUserEmailView;
     TextView mUserIsAdminView;
+    private Button mDeleteUserBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +46,17 @@ public class userProfile extends AppCompatActivity {
         mUserBirthDayView = findViewById(R.id.user_birthday);
         mUserEmailView = findViewById(R.id.user_email);
         mUserIsAdminView = findViewById(R.id.user_isAdmin);
+
+        mDeleteUserBtn = findViewById(R.id.del_user_account);
+        mDeleteUserBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent backToLoginScreen = new Intent(userProfile.this, LoginActivity.class);
+                deleteUser();
+                finish();
+                startActivity(backToLoginScreen);
+            }
+        });
     }
 
     protected void onStart(){
@@ -72,5 +91,39 @@ public class userProfile extends AppCompatActivity {
                 Log.d("ERROR", "FAILED TO RETRIEVE THE USER DATA");
             }
         });
+    }
+
+    private void deleteUser() {
+        fireBaseUid  = FirebaseAuth.getInstance().getUid();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user.delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()) {
+                    FirebaseFirestore.getInstance().collection("users").document(fireBaseUid)
+                            .delete()
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d("User document", "Deleted");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d("User document", "Failed to delete user document");
+                                }
+                            });
+                    Log.d("User account status", "User account has been successfully deleted.");
+                }
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("User account status", "Fail to delete User account");
+                    }
+                });
     }
 }
