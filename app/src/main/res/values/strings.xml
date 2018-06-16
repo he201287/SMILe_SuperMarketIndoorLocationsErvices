@@ -8,7 +8,9 @@
     <string name="userProfile">Please insert your profile information down below</string>
     <string name="userProfileInfo">Profile</string>
     <string name="profile">Profile</string>
+    <string name="admin">Here you will find the admin view with the Analytics \n WIP</string>
     <string name="bday">birthday dd/MM/yyyy</string>
+    <string name="search">Search Here</string>
     <string name="convert">Convert to a permanent account</string>
     <string name="register_user">Register</string>
     <string name="sign_in">Sign In</string>

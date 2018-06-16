@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.estimote.indoorsdk.EstimoteCloudCredentials;
@@ -38,12 +39,19 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private static final String IS_ADMIN_KEY = "isAdmin";
+    private static final String CHANNEL_ID = "foregroundService";
     private FirebaseAuth mAuth;
     private String fireBaseUid;
+    private String mSearchedItem;
+    private ArrayList<String> mArrayList;
+    private SearchView mShelfSearchView;
     private Button mSignOutBtn;
     private Button mProfileBtn;
     private Button mAdminBtn;
@@ -56,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
     private IndoorCloudManager mCldMng;
     private CloudCredentials mCldCred;
     private Notification mNotification;
-    private static final String CHANNEL_ID = "foregroundService";
+    private Boolean TEMP = false;
+
 
 
 
@@ -74,16 +83,89 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mAuth = FirebaseAuth.getInstance();
+        // Authenticate the app to access the Estimote Cloud
+        mCldCred = new EstimoteCloudCredentials("smile-0bg", "9e0f13942025ac504966bb6eb77e5a4d");
+        mCldMng = new IndoorCloudManagerFactory().create(this, mCldCred);
 
-        mSignOutBtn = findViewById(R.id.user_sign_out);
-        mSignOutBtn.setOnClickListener(new View.OnClickListener() {
+        createNotifChannel();
+        mNotification = new NotificationCompat.Builder(this, CHANNEL_ID)
+               .setSmallIcon(R.drawable.ic_shopping_cart)
+               .setContentTitle("SMILe")
+               .setContentText("The application will continue scanning while running in background, it may impact your battery usage")
+               .build();
+
+        mCldMng.getLocation("smile-indoor-location", new CloudCallback<Location>() {
             @Override
-            public void onClick(View v) {
-                signOut();
-                Intent backToLoginScreen = new Intent(MainActivity.this, LoginActivity.class);
-                finish();
-                startActivity(backToLoginScreen);
-                finish();
+            public void success(Location location) {
+                //do smthng with the location object
+                mLocationView = findViewById(R.id.indoor_location_view);
+                mLocationView.setLocation(location);
+
+                // Initialize the IndoorLocationManager
+                // With foreground() .withScannerInForegroundService(mNotification)
+                // Default scanner:  .withDefaultScanner()
+                mIndoorLocationManager = new IndoorLocationManagerBuilder(getApplicationContext(), location, mCldCred)
+                        .withScannerInForegroundService(mNotification)
+                        .build();
+
+                startPositioning();
+
+                // Setting location listener to update location on the map
+                mIndoorLocationManager.setOnPositionUpdateListener(new OnPositionUpdateListener() {
+                    @Override
+                    public void onPositionUpdate(LocationPosition localPosition) {
+
+                        mLocationView.updatePosition(localPosition);
+                        Log.d("UPDATED POS", "POS : " + localPosition);
+
+
+                        LocationPosition origin = new LocationPosition(0,0,0.0);
+                        LocationPosition shelfPos25 = new LocationPosition(2.5,4, 0.0);
+                        //LocationPosition testPos3 = new LocationPosition(1,1,0.0);
+                        LocationPosition shelfPos = new LocationPosition(2.5, 3.5, 0.0);
+                        mTestPos = shelfPos25;
+
+
+                        if(getTEMP() == true) {
+                            mLocationView.setCustomPoints(Arrays.asList(origin,shelfPos, shelfPos25));
+                            //System.out.println("TEMP IS TRUE");
+                        }
+
+                        mLocalPos = localPosition;
+
+                        if(distanceTo() < 1 && distanceToY() < 1) {
+                            Log.d("POSITION INFO ", "VOUS ETES A MOINS D'1 METRES SUR L'AXE DES X et Y DE LA POSITION DE TEST");
+                        }
+                    }
+                    @Override
+                    public void onPositionOutsideLocation() {
+                        mLocationView.hidePosition();
+                        Log.d("UPDATED POS", "Hidden Position");
+                    }
+                });
+            }
+            @Override
+            // If it fails to load the location
+            public void failure(EstimoteCloudException e) {
+                Toast.makeText(MainActivity.this, "Error While loading the location: " + e.getErrorCode(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mShelfSearchView = findViewById(R.id.search_view);
+        mShelfSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchFunction();
+                //System.out.println("TEST TEMP VARIABLE VALUE :" + TEMP);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchFunction();
+                //System.out.println("TEST TEMP VARIABLE VALUE :" + TEMP);
+                return false;
             }
         });
 
@@ -123,81 +205,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Authenticate the app to access the Estimote Cloud
-        mCldCred = new EstimoteCloudCredentials("smile-0bg", "9e0f13942025ac504966bb6eb77e5a4d");
-        mCldMng = new IndoorCloudManagerFactory().create(this, mCldCred);
-        //  Notification notification = new Notification.Builder(this)
-        //          .setSmallIcon(R.drawable.ic_shopping_cart)
-        //          .setContentTitle("SMILe")
-        //          .setContentText("The application is running in background, it may impact your battery usage")
-        //          .setPriority(Notification.PRIORITY_HIGH)
-        //          .build();
-
-        createNotifChannel();
-        mNotification = new NotificationCompat.Builder(this, CHANNEL_ID)
-               .setSmallIcon(R.drawable.ic_shopping_cart)
-               .setContentTitle("SMILe")
-               .setContentText("The application will continue scanning while running in background, it may impact your battery usage")
-               .build();
-
-        mCldMng.getLocation("smile-indoor-location", new CloudCallback<Location>() {
+        mSignOutBtn = findViewById(R.id.user_sign_out);
+        mSignOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void success(Location location) {
-                //do smthng with the location object
-                mLocationView = findViewById(R.id.indoor_location_view);
-                mLocationView.setLocation(location);
-
-                // Initialize the IndoorLocationManager
-                // With foreground() .withScannerInForegroundService(mNotification)
-                // Default scanner:  .withDefaultScanner()
-                // .withScannerInForegroundService(mNotification)
-                mIndoorLocationManager = new IndoorLocationManagerBuilder(getApplicationContext(), location, mCldCred)
-                        .withScannerInForegroundService(mNotification)
-                        .build();
-
-                startPositioning();
-
-
-                // Setting location listener to update location on the map
-                mIndoorLocationManager.setOnPositionUpdateListener(new OnPositionUpdateListener() {
-                    @Override
-                    public void onPositionUpdate(LocationPosition localPosition) {
-
-                        LocationPosition origin = new LocationPosition(0,0,0.0);
-                        LocationPosition shelfPos15 = new LocationPosition(1.5,4, 0.0);
-                        LocationPosition shelfPos2 = new LocationPosition(2,4, 0.0);
-                        LocationPosition shelfPos25 = new LocationPosition(2.5,4, 0.0);
-                        LocationPosition shelfPos3 = new LocationPosition(3, 4, 0.0);
-                        LocationPosition shelfPos35 = new LocationPosition(3.5, 4, 0.0);
-                        LocationPosition testPos3 = new LocationPosition(1,1,0.0);
-
-
-                        LocationLinearObject testShelf = new LocationLinearObject(1.0, 4.0, 3.0, 3.0, 3.0, 1);
-
-                        mLocalPos = localPosition;
-                        mTestPos = shelfPos25;
-                        mLocationView.setCustomPoints(Arrays.asList(origin, shelfPos15, shelfPos2, shelfPos25, shelfPos3, shelfPos35, testPos3));
-
-                        if(distanceTo() < 1 && distanceToY() < 1) {
-                            Log.d("POSITION INFO ", "VOUS ETES A MOINS D'1 METRES SUR L'AXE DES X et Y DE LA POSITION DE TEST");
-                        }
-                        mLocationView.updatePosition(localPosition);
-                        Log.d("UPDATED POS", "POS : " + localPosition);
-                    }
-                    @Override
-                    public void onPositionOutsideLocation() {
-                        mLocationView.hidePosition();
-                        Log.d("UPDATED POS", "Hidden Position");
-                    }
-                });
-
-
-            }
-            @Override
-            // If it fails to load the location
-            public void failure(EstimoteCloudException e) {
-                Toast.makeText(MainActivity.this, "Error While loading the location: " + e.getErrorCode(),
-                        Toast.LENGTH_SHORT).show();
+            public void onClick(View v) {
+                signOut();
+                Intent backToLoginScreen = new Intent(MainActivity.this, LoginActivity.class);
+                finish();
+                startActivity(backToLoginScreen);
+                finish();
             }
         });
 
@@ -238,13 +254,52 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void searchFunction() {
+        mShelfSearchView = findViewById(R.id.search_view);
+        mSearchedItem = String.valueOf(mShelfSearchView.getQuery());
+        System.out.println("TEST RESEARCHED ITEM: " + mSearchedItem);
+        mArrayList = new ArrayList<>();
+        DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("shelves").document("fruit_shelf");
+        mDocumentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+           @Override
+           public void onSuccess(DocumentSnapshot documentSnapshot) {
+               if(documentSnapshot.exists()) {
+                   //System.out.println("Document data: " + documentSnapshot.getData());
+                   Map<String, Object> test = documentSnapshot.getData();
+                   ArrayList<String> distinctValues = new ArrayList<String>();
+
+                   for(String key: test.keySet()) {
+                       Object value = test.get(key);
+                       String values = value.toString();
+                       distinctValues = new ArrayList(Arrays.asList(values.replaceAll("[\\[|\\]]", "").split(",")));
+
+                       for (int i = 0; i < distinctValues.size(); i++) {
+                           //System.out.println("TEST: " + distinctValue.get(i));
+                           mArrayList.add(distinctValues.get(i));
+                       }
+
+                   }
+                   TEMP = mArrayList.contains(mSearchedItem) ? true : false;
+                   System.out.println("TEST: " + TEMP);
+                   Log.d("SUCCESS", "SHELF DATA HAS BEEN RETRIEVED");
+               }
+           }
+       }).addOnFailureListener(new OnFailureListener() {
+           @Override
+           public void onFailure( Exception e) {
+               Log.d("ERROR", "FAILED TO RETRIEVE THE SHELF DATA");
+           }
+       });
+
+    }
+
     private void signOut() {
         mAuth.signOut();
     }
 
     private double distanceTo() {
-        double mDistanceTo = mTestPos.getX() - mLocalPos.getX();
-        return mDistanceTo;
+        double mDistanceToX = mTestPos.getX() - mLocalPos.getX();
+        return mDistanceToX;
     }
 
     private double distanceToY() {
@@ -264,5 +319,9 @@ public class MainActivity extends AppCompatActivity {
         mIndoorLocationManager.stopPositioning();
         super.onStop();
 
+    }
+
+    public Boolean getTEMP() {
+        return TEMP;
     }
 }

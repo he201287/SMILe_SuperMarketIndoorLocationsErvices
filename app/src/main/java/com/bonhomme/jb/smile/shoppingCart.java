@@ -32,7 +32,7 @@ public class shoppingCart extends AppCompatActivity {
     private Button mAddItemBtn;
     private Button mClearShoppingListBtn;
     private EditText mListItem;
-    private ListView mShoppinhCartListView;
+    private ListView mShoppingCartListView;
     private ArrayAdapter<String> mAdapter;
     private ArrayList<String> mArrayList;
 
@@ -60,12 +60,12 @@ public class shoppingCart extends AppCompatActivity {
 
         mListItem = findViewById(R.id.list_item);
         mAddItemBtn = findViewById(R.id.add_item);
-        mShoppinhCartListView = findViewById(R.id.shopping_cart_item);
+        mShoppingCartListView = findViewById(R.id.shopping_cart_item);
         mArrayList = new ArrayList<>();
 
         mAdapter = new ArrayAdapter<>(shoppingCart.this, android.R.layout.simple_list_item_1, mArrayList);
 
-        mShoppinhCartListView.setAdapter(mAdapter);
+        mShoppingCartListView.setAdapter(mAdapter);
 
         mAddItemBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,7 +90,7 @@ public class shoppingCart extends AppCompatActivity {
         fireBaseUid  = FirebaseAuth.getInstance().getUid();
         DocumentReference mDocumentReference = FirebaseFirestore.getInstance()
                 .collection("users").document(fireBaseUid)
-                .collection("shoppingCart").document("shoppinList");
+                .collection("shoppingCart").document("shoppingList");
 
         mDocumentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -101,8 +101,8 @@ public class shoppingCart extends AppCompatActivity {
 
                     Map<String, Object> test = documentSnapshot.getData();
 
-                    mShoppinhCartListView = findViewById(R.id.shopping_cart_item);
-                    mShoppinhCartListView.setAdapter(mAdapter);
+                    mShoppingCartListView = findViewById(R.id.shopping_cart_item);
+                    mShoppingCartListView.setAdapter(mAdapter);
                     ArrayList<String> distinctValue = new ArrayList<String>();
 
                     for(String key: test.keySet()) {
@@ -114,17 +114,11 @@ public class shoppingCart extends AppCompatActivity {
                         distinctValue = new ArrayList(Arrays.asList(values.replaceAll("[\\[|\\]]", "").split(",")));
 
                         for (int i = 0; i < distinctValue.size(); i++) {
-                            System.out.println("TEST OIEHGOIEHGIHEGI OIHEOIGIOEGIHOE " + distinctValue.get(i));
+                            //System.out.println("TEST " + distinctValue.get(i));
                             mArrayList.add(distinctValue.get(i));
                             mAdapter.notifyDataSetChanged();
                         }
-                        //String.valueOf(value)
-
-
-
-                        System.out.println("Key = " + key + ", Value = " + value);
                     }
-
                     Log.d("SUCCESS", "SHELF DATA HAS BEEN RETRIEVED");
                 }
             }
@@ -140,9 +134,9 @@ public class shoppingCart extends AppCompatActivity {
         fireBaseUid  = FirebaseAuth.getInstance().getUid();
         DocumentReference mDocumentReference = FirebaseFirestore.getInstance()
                 .collection("users").document(fireBaseUid)
-                .collection("shoppingCart").document("shoppinList");
+                .collection("shoppingCart").document("shoppingList");
 
-        mShoppinhCartListView = findViewById(R.id.shelf_list_item);
+        mShoppingCartListView = findViewById(R.id.shelf_list_item);
 
         if(mArrayList.isEmpty()) {
             return;

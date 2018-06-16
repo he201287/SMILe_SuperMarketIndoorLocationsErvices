@@ -43,26 +43,6 @@ public class anonymousUser extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        mSignOutBtn = findViewById(R.id.anonymous_user_sign_out);
-        mSignOutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signOut();
-                // Intent loginScreen = new Intent(anonymousUser.this, LoginActivity.class);
-                // startActivity(loginScreen);
-                finish();
-            }
-        });
-
-        mRegister = findViewById(R.id.anonymous_user_register);
-        mRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent registerAnonymousUser = new Intent(anonymousUser.this, registerAnonymousUser.class);
-                startActivity(registerAnonymousUser);
-            }
-        });
-
         // Authenticate the app to access the Estimote Cloud
         mCldCred = new EstimoteCloudCredentials("smile-0bg", "9e0f13942025ac504966bb6eb77e5a4d");
         mCldMng = new IndoorCloudManagerFactory().create(this, mCldCred);
@@ -97,8 +77,6 @@ public class anonymousUser extends AppCompatActivity {
                         Log.d("UPDATED POS", "Hidden Position");
                     }
                 });
-
-
             }
             @Override
             // If it fails to load the location
@@ -107,9 +85,27 @@ public class anonymousUser extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             }
         });
-    }
 
-    // TODO: Add view for the anonymous user
+        mRegister = findViewById(R.id.anonymous_user_register);
+        mRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent registerAnonymousUser = new Intent(anonymousUser.this, registerAnonymousUser.class);
+                startActivity(registerAnonymousUser);
+            }
+        });
+
+        mSignOutBtn = findViewById(R.id.anonymous_user_sign_out);
+        mSignOutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signOut();
+                Intent loginScreen = new Intent(anonymousUser.this, LoginActivity.class);
+                startActivity(loginScreen);
+                finish();
+            }
+        });
+    }
 
     private void signOut() {
         mAuth.signOut();

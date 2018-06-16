@@ -129,7 +129,6 @@ public class shelfActivity extends AppCompatActivity {
 
     private void getShelfContent() {
         DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("shelves").document("fruit_shelf");
-
         mDocumentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -139,10 +138,7 @@ public class shelfActivity extends AppCompatActivity {
 
                     Map<String, Object> test = documentSnapshot.getData();
 
-
-                  //  System.out.println("LOL" + test.entrySet());
-                  //  System.out.println("KEYSET" +  test.keySet());
-                  System.out.println("VALUES" + test.values());
+                    System.out.println("VALUES" + test.values());
 
                     mShelfList = findViewById(R.id.shelf_list_item);
                     mShelfList.setAdapter(mAdapter);
@@ -157,15 +153,10 @@ public class shelfActivity extends AppCompatActivity {
                         distinctValue = new ArrayList(Arrays.asList(values.replaceAll("[\\[|\\]]", "").split(",")));
 
                         for (int i = 0; i < distinctValue.size(); i++) {
-                           System.out.println("TEST OIEHGOIEHGIHEGI OIHEOIGIOEGIHOE " + distinctValue.get(i));
+                            //System.out.println("TEST " + distinctValue.get(i));
                             mArrayList.add(distinctValue.get(i));
                             mAdapter.notifyDataSetChanged();
                         }
-                        //String.valueOf(value)
-
-
-
-                        System.out.println("Key = " + key + ", Value = " + value);
                     }
 
                     Log.d("SUCCESS", "SHELF DATA HAS BEEN RETRIEVED");

@@ -56,7 +56,7 @@ public class registerUserProfile extends AppCompatActivity {
     private void saveUserData() {
         EditText firstNameView = findViewById(R.id.user_firstName);
         EditText lastNameView = findViewById(R.id.user_lastName);
-        // TODO CHECK FOR THE DATEPICKER AND FOR A CORRECT DATETIME FORMAT NOT A STRING / CHECK IF THE INPUT IS CORRECT
+
         EditText bDayView = findViewById(R.id.user_bDay);
 
         String firstNameText = firstNameView.getText().toString();
