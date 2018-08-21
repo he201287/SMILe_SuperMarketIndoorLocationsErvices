@@ -38,7 +38,7 @@
 
     <com.estimote.indoorsdk_module.view.IndoorLocationView
         android:id="@+id/indoor_location_view"
-        android:layout_width="407dp"
+        android:layout_width="385dp"
         android:layout_height="609dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
@@ -67,7 +67,7 @@
         app:srcCompat="@drawable/ic_shopping_cart" />
 
     <ImageButton
-        android:id="@+id/shop_shelf"
+        android:id="@+id/fruit_shelf"
         android:layout_width="185dp"
         android:layout_height="53dp"
         android:layout_marginEnd="8dp"
@@ -77,8 +77,22 @@
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.355"
-        app:srcCompat="@android:drawable/bottom_bar" />
+        app:layout_constraintVertical_bias="0.528"
+        app:srcCompat="@drawable/ic_fruit" />
+
+    <ImageButton
+        android:id="@+id/dairy_shelf"
+        android:layout_width="185dp"
+        android:layout_height="53dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.314"
+        app:srcCompat="@drawable/ic_dairy_product" />
 
     <SearchView
         android:id="@+id/search_view"

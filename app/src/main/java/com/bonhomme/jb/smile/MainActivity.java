@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -28,10 +27,18 @@ import com.estimote.indoorsdk_module.cloud.EstimoteCloudException;
 import com.estimote.indoorsdk_module.cloud.IndoorCloudManager;
 import com.estimote.indoorsdk_module.cloud.IndoorCloudManagerFactory;
 import com.estimote.indoorsdk_module.cloud.Location;
-import com.estimote.indoorsdk_module.cloud.LocationLinearObject;
 import com.estimote.indoorsdk_module.cloud.LocationPosition;
 import com.estimote.indoorsdk_module.view.IndoorLocationView;
-import com.estimote.internal_plugins_api.cloud.CloudCredentials;
+
+import com.estimote.mustard.rx_goodness.rx_requirements_wizard.Requirement;
+import com.estimote.mustard.rx_goodness.rx_requirements_wizard.RequirementsWizardFactory;
+//import com.estimote.proximity_sdk.api.EstimoteCloudCredentials;
+//import com.estimote.proximity_sdk.api.ProximityObserver;
+//import com.estimote.proximity_sdk.api.ProximityObserverBuilder;
+//import com.estimote.proximity_sdk.api.ProximityZone;
+//import com.estimote.proximity_sdk.api.ProximityZoneBuilder;
+//import com.estimote.proximity_sdk.api.ProximityZoneContext;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -41,8 +48,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
 
 public class MainActivity extends AppCompatActivity {
     private static final String IS_ADMIN_KEY = "isAdmin";
@@ -56,26 +67,28 @@ public class MainActivity extends AppCompatActivity {
     private Button mProfileBtn;
     private Button mAdminBtn;
     private ImageButton mShelfBtn;
+    private ImageButton mDairyShelfBtn;
     private ImageButton mShoppingCartBtn;
     private IndoorLocationView mLocationView;
 
     private LocationPosition mLocalPos;
     private LocationPosition mTestPos;
     private IndoorCloudManager mCldMng;
-    private CloudCredentials mCldCred;
+    private com.estimote.indoorsdk.EstimoteCloudCredentials mCldCred;
     private Notification mNotification;
     private Boolean TEMP = false;
 
+    private static final int PERMISSION_REQUEST_FINE_LOCATION = 01;
 
 
-
-    protected ScanningIndoorLocationManager mIndoorLocationManager;
+    private ScanningIndoorLocationManager mIndoorLocationManager;
 
     protected void onStart(){
-        super.onStart();
+
         mAdminBtn.setVisibility(View.INVISIBLE);
         mAdminBtn.setEnabled(false);
         getAdminState();
+        super.onStart();
     }
 
     @Override
@@ -83,8 +96,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mAuth = FirebaseAuth.getInstance();
+
+    //Request the permission for the Location access
+    //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    //   requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_FINE_LOCATION);
+    //}
+
         // Authenticate the app to access the Estimote Cloud
-        mCldCred = new EstimoteCloudCredentials("smile-0bg", "9e0f13942025ac504966bb6eb77e5a4d");
+        mCldCred = new com.estimote.indoorsdk.EstimoteCloudCredentials("smile-0bg", "9e0f13942025ac504966bb6eb77e5a4d");
         mCldMng = new IndoorCloudManagerFactory().create(this, mCldCred);
 
         createNotifChannel();
@@ -94,7 +113,8 @@ public class MainActivity extends AppCompatActivity {
                .setContentText("The application will continue scanning while running in background, it may impact your battery usage")
                .build();
 
-        mCldMng.getLocation("smile-indoor-location", new CloudCallback<Location>() {
+
+        mCldMng.getLocation("smileindoorloc-17s", new CloudCallback<Location>() {
             @Override
             public void success(Location location) {
                 //do smthng with the location object
@@ -117,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
 
                         mLocationView.updatePosition(localPosition);
                         Log.d("UPDATED POS", "POS : " + localPosition);
-
 
                         LocationPosition origin = new LocationPosition(0,0,0.0);
                         LocationPosition shelfPos25 = new LocationPosition(2.5,4, 0.0);
@@ -151,6 +170,35 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             }
         });
+
+        //Wizard
+
+        // Checks if all the requirements are fulfilled (Bluetooth, location, ...).
+        RequirementsWizardFactory.createEstimoteRequirementsWizard().fulfillRequirements(
+                this,
+                new Function0<Unit>() {
+                    @Override
+                    public Unit invoke() {
+                        //mProxObs.addProximityZone(mFruitProxZone).start();
+                        //startPositioning();
+                        return null;
+                    }
+                },
+
+                new Function1<List<? extends Requirement>, Unit>() {
+                    @Override
+                    public Unit invoke(List<? extends Requirement> requirements) {
+                        return null;
+                    }
+                },
+
+                new Function1<Throwable, Unit>() {
+                    @Override
+                    public Unit invoke(Throwable throwable) {
+                        return null;
+                    }
+                }
+        );
 
         mShelfSearchView = findViewById(R.id.search_view);
         mShelfSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -196,8 +244,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mShelfBtn = findViewById(R.id.shop_shelf);
+        mShelfBtn = findViewById(R.id.fruit_shelf);
         mShelfBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent shelfManagement = new Intent(MainActivity.this, shelfActivity.class);
+                startActivity(shelfManagement);
+            }
+        });
+
+        mDairyShelfBtn = findViewById(R.id.dairy_shelf);
+        mDairyShelfBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent shelfManagement = new Intent(MainActivity.this, shelfActivity.class);
@@ -280,6 +337,7 @@ public class MainActivity extends AppCompatActivity {
 
                    }
                    TEMP = mArrayList.contains(mSearchedItem) ? true : false;
+                   //System.out.println("TEST: " + mArrayList);
                    System.out.println("TEST: " + TEMP);
                    Log.d("SUCCESS", "SHELF DATA HAS BEEN RETRIEVED");
                }

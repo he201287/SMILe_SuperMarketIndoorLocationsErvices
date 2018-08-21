@@ -14,13 +14,13 @@ import com.estimote.indoorsdk.IndoorLocationManagerBuilder;
 import com.estimote.indoorsdk_module.algorithm.OnPositionUpdateListener;
 import com.estimote.indoorsdk_module.algorithm.ScanningIndoorLocationManager;
 import com.estimote.indoorsdk_module.cloud.CloudCallback;
+import com.estimote.indoorsdk_module.cloud.CloudCredentials;
 import com.estimote.indoorsdk_module.cloud.EstimoteCloudException;
 import com.estimote.indoorsdk_module.cloud.IndoorCloudManager;
 import com.estimote.indoorsdk_module.cloud.IndoorCloudManagerFactory;
 import com.estimote.indoorsdk_module.cloud.Location;
 import com.estimote.indoorsdk_module.cloud.LocationPosition;
 import com.estimote.indoorsdk_module.view.IndoorLocationView;
-import com.estimote.internal_plugins_api.cloud.CloudCredentials;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class anonymousUser extends AppCompatActivity {
@@ -29,7 +29,7 @@ public class anonymousUser extends AppCompatActivity {
     private IndoorLocationView mLocationView;
     private LocationPosition mLocalPos;
     private IndoorCloudManager mCldMng;
-    private CloudCredentials mCldCred;
+    private EstimoteCloudCredentials mCldCred;
 
     private Button mSignOutBtn;
     private Button mRegister;
@@ -47,7 +47,7 @@ public class anonymousUser extends AppCompatActivity {
         mCldCred = new EstimoteCloudCredentials("smile-0bg", "9e0f13942025ac504966bb6eb77e5a4d");
         mCldMng = new IndoorCloudManagerFactory().create(this, mCldCred);
 
-        mCldMng.getLocation("smile-indoor-location", new CloudCallback<Location>() {
+        mCldMng.getLocation("smileindoorloc-17s", new CloudCallback<Location>() {
             @Override
             public void success(Location location) {
                 //do smthng with the location object
