@@ -1,8 +1,6 @@
 package com.bonhomme.jb.smile;
 
 import android.content.Intent;
-import android.os.SystemClock;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -111,11 +109,11 @@ public class shoppingCart extends AppCompatActivity {
 
                         String values = value.toString();
 
-                        distinctValue = new ArrayList(Arrays.asList(values.replaceAll("[\\[|\\]]", "").split(",")));
+                        distinctValue = new ArrayList(Arrays.asList(values.replaceAll("[\\[|\\]]", "").trim().split(",")));
 
                         for (int i = 0; i < distinctValue.size(); i++) {
                             //System.out.println("TEST " + distinctValue.get(i));
-                            mArrayList.add(distinctValue.get(i));
+                            mArrayList.add(distinctValue.get(i).replaceAll("\\s+", "")); // Regex: removes white spaces
                             mAdapter.notifyDataSetChanged();
                         }
                     }

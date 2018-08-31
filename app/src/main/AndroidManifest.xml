@@ -33,7 +33,8 @@
         <activity android:name=".userProfile" />
         <activity android:name=".shelfActivity" />
         <activity android:name=".adminUser" />
-        <activity android:name=".shoppingCart"></activity>
+        <activity android:name=".shoppingCart" />
+        <activity android:name=".anonymousShelfActivity"></activity>
     </application>
 
 </manifest>

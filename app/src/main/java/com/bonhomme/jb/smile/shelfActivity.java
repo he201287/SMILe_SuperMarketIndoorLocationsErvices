@@ -37,6 +37,8 @@ public class shelfActivity extends AppCompatActivity {
     private ListView mShelfList;
     private ArrayAdapter<String> mAdapter;
     private ArrayList<String> mArrayList;
+    private String mDocumentName;
+    private String mFieldName;
 
     @Override
     protected void onStart(){
@@ -67,6 +69,13 @@ public class shelfActivity extends AppCompatActivity {
             }
         });
 
+        // get the extra data passed with the shelves intent to assign the correct documentName
+        mDocumentName = getIntent().getStringExtra("documentName");
+        //Log.d("SUCCESS", "EXTRA !  " + mDocumentName);
+        // get the extra data passed with the shelves intent to assign the correct fieldName
+        mFieldName = getIntent().getStringExtra("fieldName");
+
+
         mListItem = findViewById(R.id.list_item);
         mAddItemBtn = findViewById(R.id.add_item);
         mShelfList = findViewById(R.id.shelf_list_item);
@@ -96,7 +105,7 @@ public class shelfActivity extends AppCompatActivity {
     }
 
     private void saveListContent() {
-        DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("shelves").document("fruit_shelf");
+        DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("shelves").document(mDocumentName);
 
         mShelfList = findViewById(R.id.shelf_list_item);
 
@@ -108,14 +117,14 @@ public class shelfActivity extends AppCompatActivity {
             }
             System.out.println("INFO" + mArrayList);
             Map<String, Object> shelfData = new HashMap<String, Object>();
-            shelfData.put("Fruit_Array", mArrayList);
+            shelfData.put(mFieldName, mArrayList);
 
             mDocumentReference.set(shelfData).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     Log.d("SUCCESS", "Success ! Your document has been saved");
-                    Toast.makeText(shelfActivity.this, "Your shelf has been successfully saved to the cloud !",
-                            Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(shelfActivity.this, "Your shelf has been successfully saved to the cloud !",
+                    //        Toast.LENGTH_SHORT).show();
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -128,7 +137,7 @@ public class shelfActivity extends AppCompatActivity {
     }
 
     private void getShelfContent() {
-        DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("shelves").document("fruit_shelf");
+        DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("shelves").document(mDocumentName);
         mDocumentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -150,11 +159,11 @@ public class shelfActivity extends AppCompatActivity {
 
                         String values = value.toString();
 
-                        distinctValue = new ArrayList(Arrays.asList(values.replaceAll("[\\[|\\]]", "").split(",")));
+                        distinctValue = new ArrayList(Arrays.asList(values.replaceAll("[\\[|\\]]", "").trim().split(",")));
 
                         for (int i = 0; i < distinctValue.size(); i++) {
                             //System.out.println("TEST " + distinctValue.get(i));
-                            mArrayList.add(distinctValue.get(i));
+                            mArrayList.add(distinctValue.get(i).replaceAll("\\s+", "")); // Regex: removes white spaces
                             mAdapter.notifyDataSetChanged();
                         }
                     }

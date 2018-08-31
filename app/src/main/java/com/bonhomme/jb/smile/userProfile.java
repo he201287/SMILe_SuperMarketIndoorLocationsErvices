@@ -36,6 +36,7 @@ public class userProfile extends AppCompatActivity {
     TextView mUserEmailView;
     TextView mUserIsAdminView;
     private Button mDeleteUserBtn;
+    private Button mBackToMainBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +56,15 @@ public class userProfile extends AppCompatActivity {
                 deleteUser();
                 finish();
                 startActivity(backToLoginScreen);
+            }
+        });
+        mBackToMainBtn = findViewById(R.id.backToMain);
+        mBackToMainBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent backToMain = new Intent(userProfile.this, MainActivity.class);
+                finish();
+                startActivity(backToMain);
             }
         });
     }

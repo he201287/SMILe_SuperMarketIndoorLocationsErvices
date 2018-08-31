@@ -39,7 +39,7 @@
     <com.estimote.indoorsdk_module.view.IndoorLocationView
         android:id="@+id/indoor_location_view"
         android:layout_width="385dp"
-        android:layout_height="609dp"
+        android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
