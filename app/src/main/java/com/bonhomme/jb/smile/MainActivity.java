@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String CHANNEL_ID = "foregroundService";
     private Boolean TEMP = false;
     private Boolean TMP = false;
+    private Boolean TEMPO = false;
 
     //Firebase Variables
     private FirebaseAuth mAuth;
@@ -78,13 +79,21 @@ public class MainActivity extends AppCompatActivity {
     private ProximityObserver.Handler obsHandler;
     private ProximityZone mFruitProxZone;
     private ProximityZone mDairyProxZone;
+    private ProximityZone mWineProxZone;
     private ProximityZone mDoorProxZone;
+    private Boolean fruitFound;
+    private Boolean dairyFound;
+    private Boolean wineFound;
 
 
     private Notification mNotification;
     private String mSearchedItem;
     private ArrayList<String> mFruitArrayList;
     private ArrayList<String> mDairyArrayList;
+    private ArrayList<String> mWineArrayList;
+    private ArrayList<String> mFruitFoundArray;
+    private ArrayList<String> mDairyFoundArray;
+    private ArrayList<String> mWineFoundArray;
     private ArrayList<String> mShoppingCartArrayList;
     private SearchView mShelfSearchView;
     private Button mSignOutBtn;
@@ -92,10 +101,8 @@ public class MainActivity extends AppCompatActivity {
     private Button mAdminBtn;
     private ImageButton mShelfBtn;
     private ImageButton mDairyShelfBtn;
+    private ImageButton mWineShelfBtn;
     private ImageButton mShoppingCartBtn;
-
-
-
 
     protected void onStart(){
         mAdminBtn.setVisibility(View.INVISIBLE);
@@ -147,11 +154,11 @@ public class MainActivity extends AppCompatActivity {
         // Create a beacon zone for the fruitZone tagged beacon.
         mFruitProxZone = new ProximityZoneBuilder()
                 .forTag("fruitZone")
-                .inNearRange()
+                .inNearRange() // Can be changed to .inFarRange() or .inCustomRange()
                 .onEnter(new Function1<ProximityZoneContext, Unit>() {
                     @Override
                     public Unit invoke(ProximityZoneContext proximityZoneContext) {
-                        searchWhileMovingFunction();
+                        searchfruitArrayFunction();
                         return null;
                     }
                 })
@@ -160,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
                     public Unit invoke(ProximityZoneContext proximityZoneContext) {
                         mShelfBtn = findViewById(R.id.fruit_shelf);
                         mShelfBtn.setBackgroundColor(Color.LTGRAY);
+                        mFruitFoundArray.clear();
                         return null;
                     }
                 })
@@ -171,9 +179,8 @@ public class MainActivity extends AppCompatActivity {
                 .onEnter(new Function1<ProximityZoneContext, Unit>() {
                     @Override
                     public Unit invoke(ProximityZoneContext proximityZoneContext) {
-                        searchWhileMovingFunction();
-                        Toast.makeText(MainActivity.this, "zone breached",
-                                Toast.LENGTH_LONG).show();
+                        searchdairyArrayFunction();
+                        Log.d("dairyZone", "dairyZone entered");
                         return null;
                     }
                 })
@@ -182,8 +189,29 @@ public class MainActivity extends AppCompatActivity {
                     public Unit invoke(ProximityZoneContext proximityZoneContext) {
                         mDairyShelfBtn = findViewById(R.id.dairy_shelf);
                         mDairyShelfBtn.setBackgroundColor(Color.LTGRAY);
-                        Toast.makeText(MainActivity.this, "leaving zone",
-                                Toast.LENGTH_SHORT).show();
+                        mDairyFoundArray.clear();
+                        return null;
+                    }
+                })
+                .build();
+
+        mWineProxZone = new ProximityZoneBuilder()
+                .forTag("wineZone")
+                .inNearRange()
+                .onEnter(new Function1<ProximityZoneContext, Unit>() {
+                    @Override
+                    public Unit invoke(ProximityZoneContext proximityZoneContext) {
+                        searchwineArrayFunction();
+                        Log.d("wineZone", "wineZone entered");
+                        return null;
+                    }
+                })
+                .onExit(new Function1<ProximityZoneContext, Unit>() {
+                    @Override
+                    public Unit invoke(ProximityZoneContext proximityZoneContext) {
+                        mWineShelfBtn = findViewById(R.id.wine_shelf);
+                        mWineShelfBtn.setBackgroundColor(Color.LTGRAY);
+                        mWineFoundArray.clear();
                         return null;
                     }
                 })
@@ -191,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
 
         mDoorProxZone = new ProximityZoneBuilder()
                 .forTag("Entrance")
-                .inNearRange()
+                .inFarRange()
                 .onEnter(new Function1<ProximityZoneContext, Unit>() {
                     @Override
                     public Unit invoke(ProximityZoneContext proximityZoneContext) {
@@ -253,6 +281,8 @@ public class MainActivity extends AppCompatActivity {
                                             //System.out.println("TEMP IS TRUE");
                                         } else if (getTMP() == true) {
                                             mLocationView.setCustomPoints(Arrays.asList(origin,dairyShelf));
+                                        } else if (getTEMPO() == true) {
+                                            mLocationView.setCustomPoints(Arrays.asList(origin));
                                         }
 
                                         mLocalPos = localPosition;
@@ -278,7 +308,8 @@ public class MainActivity extends AppCompatActivity {
                         });
 
                         // Start observing the zones previously created
-                        obsHandler = mProxObs.startObserving(mFruitProxZone, mDairyProxZone, mDoorProxZone);
+                        obsHandler = mProxObs.startObserving(mFruitProxZone, mDairyProxZone, mWineProxZone, mDoorProxZone);
+
                         return null;
                     }
                 },
@@ -310,13 +341,42 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 searchFunction();
                 //System.out.println("TEST TEMP VARIABLE VALUE :" + TEMP);
+                if (getTEMP() == true) {
+                    mShelfBtn = findViewById(R.id.fruit_shelf);
+                    mShelfBtn.setBackgroundColor(Color.GREEN);
+                }
+
+                if(getTMP() == true) {
+                    mDairyShelfBtn = findViewById(R.id.dairy_shelf);
+                    mDairyShelfBtn.setBackgroundColor(Color.GREEN);
+                }
+
+                if(getTEMPO() == true) {
+                    mWineShelfBtn = findViewById(R.id.wine_shelf);
+                    mWineShelfBtn.setBackgroundColor(Color.GREEN);
+                }
+
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 searchFunction();
-                //System.out.println("TEST TEMP VARIABLE VALUE :" + TEMP);
+                if (getTEMP() == true) {
+                    mShelfBtn = findViewById(R.id.fruit_shelf);
+                    mShelfBtn.setBackgroundColor(Color.GREEN);
+                }
+
+                if(getTMP() == true) {
+                    mDairyShelfBtn = findViewById(R.id.dairy_shelf);
+                    mDairyShelfBtn.setBackgroundColor(Color.GREEN);
+                }
+
+                if(getTEMPO() == true) {
+                    mWineShelfBtn = findViewById(R.id.wine_shelf);
+                    mWineShelfBtn.setBackgroundColor(Color.GREEN);
+                }
+
                 return false;
             }
         });
@@ -371,6 +431,18 @@ public class MainActivity extends AppCompatActivity {
                 Intent shelfManagement = new Intent(MainActivity.this, shelfActivity.class);
                 shelfManagement.putExtra("documentName", "dairy_shelf");
                 shelfManagement.putExtra("fieldName", "dairy_array");
+                startActivity(shelfManagement);
+            }
+        });
+
+        // Initialize the wine shelf button and add an onClick listener
+        mWineShelfBtn = findViewById(R.id.wine_shelf);
+        mWineShelfBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent shelfManagement = new Intent(MainActivity.this, shelfActivity.class);
+                shelfManagement.putExtra("documentName", "wine_shelf");
+                shelfManagement.putExtra("fieldName", "wine_array");
                 startActivity(shelfManagement);
             }
         });
@@ -431,6 +503,7 @@ public class MainActivity extends AppCompatActivity {
     private void getShelvesProducts() {
         mFruitArrayList = new ArrayList<>();
         mDairyArrayList = new ArrayList<>();
+        mWineArrayList = new ArrayList<>();
 
         DocumentReference mDocumentReference = FirebaseFirestore.getInstance().collection("shelves").document("fruit_shelf");
         mDocumentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -488,6 +561,35 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("ERROR", "FAILED TO RETRIEVE THE SHELF DATA");
             }
         });
+
+        DocumentReference mWineDocumentReference = FirebaseFirestore.getInstance().collection("shelves").document("wine_shelf");
+        mWineDocumentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if(documentSnapshot.exists()) {
+                    //System.out.println("Document data: " + documentSnapshot.getData());
+                    Map<String, Object> test = documentSnapshot.getData();
+                    ArrayList<String> distinctValues = new ArrayList<String>();
+
+                    for(String key: test.keySet()) {
+                        Object value = test.get(key);
+                        String values = value.toString();
+                        distinctValues = new ArrayList(Arrays.asList(values.replaceAll("[\\[|\\]]", "").split(",")));
+
+                        for (int i = 0; i < distinctValues.size(); i++) {
+                            //System.out.println("TEST: " + distinctValue.get(i));
+                            mWineArrayList.add(distinctValues.get(i).replaceAll("\\s+", ""));
+                        }
+                    }
+                    //Log.d("arrayStatus", "Status: " + mWineArrayList);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure( Exception e) {
+                Log.d("ERROR", "FAILED TO RETRIEVE THE SHELF DATA");
+            }
+        });
     }
 
     // Function used to search an item in the supermarket
@@ -496,30 +598,58 @@ public class MainActivity extends AppCompatActivity {
         mShelfSearchView = findViewById(R.id.search_view);
         mSearchedItem = String.valueOf(mShelfSearchView.getQuery());
         System.out.println("TEST RESEARCHED ITEM: " + mSearchedItem);
-
-        // Check if the searched item is in the shelves
-        TEMP = mFruitArrayList.contains(mSearchedItem) ? true : false;
-        TMP = mDairyArrayList.contains(mSearchedItem) ? true : false;
-        //System.out.println("TEST: " + mFruitArrayList);
-        System.out.println("TEST: " + TEMP);
-        Log.d("SUCCESS", "SHELF DATA HAS BEEN RETRIEVED");
-
+        if(mSearchedItem.isEmpty()) {
+            mShelfBtn = findViewById(R.id.fruit_shelf);
+            mShelfBtn.setBackgroundColor(Color.LTGRAY);
+            mDairyShelfBtn = findViewById(R.id.dairy_shelf);
+            mDairyShelfBtn.setBackgroundColor(Color.LTGRAY);
+            mWineShelfBtn = findViewById(R.id.wine_shelf);
+            mWineShelfBtn.setBackgroundColor(Color.LTGRAY);
+        } else {
+            // Check if the searched item is in the shelves
+            TEMP = mFruitArrayList.contains(mSearchedItem);
+            TMP = mDairyArrayList.contains(mSearchedItem);
+            TEMPO = mWineArrayList.contains(mSearchedItem);
+        }
     }
 
-    private void searchWhileMovingFunction() {
+    private void searchfruitArrayFunction() {
+        mFruitFoundArray = new ArrayList<>();
         for (int i = 0; i < mShoppingCartArrayList.size(); i++) {
-            boolean fruitFound = mFruitArrayList.contains(mShoppingCartArrayList.get(i));
-            boolean dairyFound = mDairyArrayList.contains(mShoppingCartArrayList.get(i));
+            fruitFound = mFruitArrayList.contains(mShoppingCartArrayList.get(i));
+            if (fruitFound == true) {
+                mShelfBtn = findViewById(R.id.fruit_shelf);
+                mShelfBtn.setBackgroundColor(Color.GREEN);
+                mFruitFoundArray.add(mShoppingCartArrayList.get(i));
+                Toast.makeText(MainActivity.this, "Fruit found: " + mFruitFoundArray,
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
+    private void searchdairyArrayFunction() {
+        mDairyFoundArray = new ArrayList<>();
+        for (int i = 0; i < mShoppingCartArrayList.size(); i++) {
+            dairyFound = mDairyArrayList.contains(mShoppingCartArrayList.get(i));
             if(dairyFound == true) {
                 mDairyShelfBtn = findViewById(R.id.dairy_shelf);
                 mDairyShelfBtn.setBackgroundColor(Color.GREEN);
-                Toast.makeText(MainActivity.this, "Item(s) Found: ",
+                mDairyFoundArray.add(mShoppingCartArrayList.get(i));
+                Toast.makeText(MainActivity.this, "Dairy Found: " + mDairyFoundArray,
                         Toast.LENGTH_LONG).show();
-            } else if (fruitFound == true) {
-                mShelfBtn = findViewById(R.id.fruit_shelf);
-                mShelfBtn.setBackgroundColor(Color.GREEN);
-                Toast.makeText(MainActivity.this, "item Found",
+            }
+        }
+    }
+
+    private void searchwineArrayFunction() {
+        mWineFoundArray = new ArrayList<>();
+        for (int i = 0; i < mShoppingCartArrayList.size(); i++) {
+            wineFound = mWineArrayList.contains(mShoppingCartArrayList.get(i));
+            if (wineFound == true) {
+                mWineShelfBtn = findViewById(R.id.wine_shelf);
+                mWineShelfBtn.setBackgroundColor(Color.GREEN);
+                mWineFoundArray.add(mShoppingCartArrayList.get(i));
+                Toast.makeText(MainActivity.this, "Wine Found: " + mWineFoundArray,
                         Toast.LENGTH_LONG).show();
             }
         }
@@ -608,5 +738,9 @@ public class MainActivity extends AppCompatActivity {
 
     public Boolean getTMP() {
         return TMP;
+    }
+
+    public  Boolean getTEMPO() {
+        return TEMPO;
     }
 }

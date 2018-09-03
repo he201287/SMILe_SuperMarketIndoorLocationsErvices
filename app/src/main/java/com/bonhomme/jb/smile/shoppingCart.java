@@ -150,7 +150,7 @@ public class shoppingCart extends AppCompatActivity {
                 @Override
                 public void onSuccess(Void aVoid) {
                     Log.d("SUCCESS", "Success ! Your document has been saved");
-                    Toast.makeText(shoppingCart.this, "Your shelf has been successfully saved to the cloud !",
+                    Toast.makeText(shoppingCart.this, "Your shopping cart has been successfully saved to the cloud !",
                             Toast.LENGTH_SHORT).show();
                 }
             }).addOnFailureListener(new OnFailureListener() {

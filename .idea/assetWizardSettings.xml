@@ -19,8 +19,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\J-b90\Documents\3TI_Q2\TFE_2017_2018\dairyProductsIcon.png" />
-                                      <entry key="outputName" value="ic_dairy_product" />
+                                      <entry key="imageAsset" value="C:\Users\J-b90\Desktop\wine.png" />
+                                      <entry key="outputName" value="ic_wine" />
                                       <entry key="theme" value="CUSTOM" />
                                       <entry key="themeColor" value="000000" />
                                     </map>
